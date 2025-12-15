@@ -34,13 +34,24 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 
 const userSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  email: z.email("Email tidak valid"),
+  name: z.string().min(2),
+  email: z.string().email(),
   password: z.string().optional(),
+
   role: z.enum(["ADMIN", "SECURITY", "EMPLOYEE"]),
-  divisionId: z.string().optional(),
   isActive: z.boolean(),
+  divisionId: z.string().optional(),
+
+  address: z.string().optional(),
+  education: z.string().optional(),
+  position: z.string().optional(),
+  nik: z.string().optional(),
+  bpjsTk: z.string().optional(),
+  bpjsKes: z.string().optional(),
+
+  startWorkDate: z.string().optional(), // input type="date"
 });
+
 
 type UserFormValues = z.infer<typeof userSchema>;
 
@@ -68,8 +79,15 @@ export function UserDialog({
       email: "",
       password: "",
       role: "EMPLOYEE",
-      divisionId: undefined,
       isActive: true,
+      divisionId: undefined,
+      address: "",
+      education: "",
+      position: "",
+      nik: "",
+      bpjsTk: "",
+      bpjsKes: "",
+      startWorkDate: "",
     },
   });
 
@@ -87,29 +105,51 @@ export function UserDialog({
   }, []);
 
   React.useEffect(() => {
-    if (open) {
-      fetchDivisions();
-      if (user) {
-        form.reset({
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          divisionId: user.divisionId || undefined, // Handle if user has divisionId
-          isActive: user.isActive,
-          password: "",
-        });
-      } else {
-        form.reset({
-          name: "",
-          email: "",
-          password: "",
-          role: "EMPLOYEE",
-          divisionId: undefined,
-          isActive: true,
-        });
-      }
+    if (!open) return;
+
+    fetchDivisions();
+
+    if (user) {
+      // MODE EDIT
+      form.reset({
+        name: user.name ?? "",
+        email: user.email ?? "",
+        role: user.role ?? "EMPLOYEE",
+        isActive: user.isActive ?? true,
+        divisionId: user.divisionId ?? undefined,
+
+        address: user.address ?? "",
+        education: user.education ?? "",
+        position: user.position ?? "",
+        nik: user.nik ?? "",
+        bpjsTk: user.bpjsTk ?? "",
+        bpjsKes: user.bpjsKes ?? "",
+        startWorkDate: user.startWorkDate
+          ? new Date(user.startWorkDate).toISOString().split("T")[0]
+          : "",
+
+        password: "", // selalu kosong saat edit
+      });
+    } else {
+      // MODE CREATE
+      form.reset({
+        name: "",
+        email: "",
+        password: "",
+        role: "EMPLOYEE",
+        isActive: true,
+        divisionId: undefined,
+
+        address: "",
+        education: "",
+        position: "",
+        nik: "",
+        bpjsTk: "",
+        bpjsKes: "",
+        startWorkDate: "",
+      });
     }
-  }, [user, open, form, fetchDivisions]);
+  }, [open, user, fetchDivisions, form]);
 
   const onSubmit = async (data: UserFormValues) => {
     setLoading(true);
@@ -175,6 +215,20 @@ export function UserDialog({
             />
             <FormField
               control={form.control}
+              name="nik"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>NIK</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nomor Induk Kependudukan" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -186,6 +240,91 @@ export function UserDialog({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alamat</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Alamat lengkap" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="education"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pendidikan</FormLabel>
+                    <FormControl>
+                      <Input placeholder="S1 / SMA / D3" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jabatan</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jabatan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="bpjsTk"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>BPJS TK</FormLabel>
+                    <FormControl>
+                      <Input placeholder="BPJS Ketenagakerjaan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bpjsKes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>BPJS Kesehatan</FormLabel>
+                    <FormControl>
+                      <Input placeholder="BPJS Kesehatan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="startWorkDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tanggal Mulai Kerja</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}

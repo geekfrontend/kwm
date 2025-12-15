@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconUsers,
   IconBuildingCommunity,
+  IconChecklist
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -22,6 +23,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/components/providers/auth-provider";
+import { Icon } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -43,6 +45,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Divisi",
             url: "/divisions",
             icon: IconBuildingCommunity,
+          },
+          {
+            title: "Attendance",
+            url: "/attendance",
+            icon: IconChecklist,
           },
         ]
       : []),

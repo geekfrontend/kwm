@@ -5,7 +5,7 @@ import api from "@/lib/api";
 interface User {
   id: string;
   name: string;
-  email: string;
+  noHp: string;
   role: string;
   isActive: boolean;
   createdAt: string;

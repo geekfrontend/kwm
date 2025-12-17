@@ -23,18 +23,19 @@ export function  LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [email, setEmail] = React.useState("");
+  const [noHp, setMoHp] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const { login } = useAuthStore();
   const router = useRouter();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/auth/login", { noHp, password });
       if (res.data.status === "success") {
         login(res.data.data.token, res.data.data.user);
         toast.success("Login berhasil");
@@ -62,21 +63,21 @@ export function  LoginForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Selamat Datang</CardTitle>
           <CardDescription>
-            Masukkan email dan kata sandi untuk masuk
+            Masukkan No Hp dan kata sandi untuk masuk
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="noHp">No Hp</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="noHp"
+                  type="number"
+                  placeholder="08xxxxx"
+                  required 
+                  value={noHp}
+                  onChange={(e) => setMoHp(e.target.value)}
                 />
               </Field>
               <Field>

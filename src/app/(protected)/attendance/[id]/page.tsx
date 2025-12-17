@@ -195,11 +195,15 @@ export default function AttendanceDetailPage() {
                           disabled={
                             !att.mealAllowance ||
                             !att.mealAllowance.isEligible ||
-                            att.mealAllowance.isPaid
+                            att.mealAllowance.isPaid ||
+                            !att.checkOutAt ||
+                            moment(att.checkOutAt).hour() < 16
                           }
                           onClick={async () => {
                             try {
-                              await api.put(`/api/attendance/allowances/${att?.id}/pay`);
+                              await api.put(
+                                `/api/attendance/allowances/${att.id}/pay`
+                              );
                               toast.success("Tunjangan berhasil dibayar");
                               fetchAttendance();
                             } catch (err) {
@@ -251,10 +255,10 @@ export default function AttendanceDetailPage() {
                   Tanggal
                 </th>
                 <th className="border border-slate-300 px-3 py-2 text-center">
-                  Check In
+                  Jam Masuk
                 </th>
                 <th className="border border-slate-300 px-3 py-2 text-center">
-                  Check Out
+                  Jam Keluar
                 </th>
                 <th className="border border-slate-300 px-3 py-2 text-center">
                   Status Kehadiran

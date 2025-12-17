@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { UserDetailDialog } from "./detail-user";
 import {
   Table,
   TableBody,
@@ -35,6 +36,13 @@ interface User {
   name: string;
   email: string;
   role: "ADMIN" | "SECURITY" | "EMPLOYEE";
+  address: string;
+  education: string;
+  startWorkDate: string;
+  position: string;
+  nik: string;
+  bpjsTk: string;
+  bpjsKes: string;
   division?: {
     name: string;
   };
@@ -65,8 +73,15 @@ export default function UsersPage() {
   const [pageSize, setPageSize] = React.useState(10);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<User | undefined>(
-    undefined,
+    undefined
   );
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
+  const [detailUser, setDetailUser] = React.useState<User | null>(null);
+
+  const handleDetail = (user: User) => {
+    setDetailUser(user);
+    setIsDetailOpen(true);
+  };
 
   const fetchUsers = React.useCallback(async () => {
     setLoading(true);
@@ -182,6 +197,11 @@ export default function UsersPage() {
                         <DropdownMenuItem onClick={() => handleEdit(user)}>
                           Edit
                         </DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => handleDetail(user)}>
+                          Detail
+                        </DropdownMenuItem>
+
                         <DropdownMenuItem
                           className="text-red-600"
                           onClick={() => handleDelete(user.id)}
@@ -198,7 +218,7 @@ export default function UsersPage() {
         </Table>
       </div>
 
-      {meta && (
+      {meta && ( 
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
             Halaman {meta.page} dari {meta.totalPages} ({meta.totalItems} item)
@@ -223,6 +243,12 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      <UserDetailDialog
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        user={detailUser}
+      />
 
       <UserDialog
         open={isDialogOpen}

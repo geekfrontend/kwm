@@ -42,6 +42,9 @@ const userSchema = z.object({
   isActive: z.boolean(),
   divisionId: z.string().optional(),
 
+  ketStatus: z.string().optional(),
+  ttl: z.string().optional(),
+  noHp: z.string().optional(),
   address: z.string().optional(),
   education: z.string().optional(),
   position: z.string().optional(),
@@ -51,7 +54,6 @@ const userSchema = z.object({
 
   startWorkDate: z.string().optional(), // input type="date"
 });
-
 
 type UserFormValues = z.infer<typeof userSchema>;
 
@@ -70,7 +72,9 @@ export function UserDialog({
 }: UserDialogProps) {
   const [loading, setLoading] = React.useState(false);
   const [divisions, setDivisions] = React.useState<any[]>([]);
+  const [status, setStatus] = React.useState(true);
   const isEditing = !!user;
+  console.log(status);
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -81,6 +85,9 @@ export function UserDialog({
       role: "EMPLOYEE",
       isActive: true,
       divisionId: undefined,
+      ketStatus: "Pensiun",
+      ttl: "",
+      noHp: "",
       address: "",
       education: "",
       position: "",
@@ -118,6 +125,9 @@ export function UserDialog({
         isActive: user.isActive ?? true,
         divisionId: user.divisionId ?? undefined,
 
+        ketStatus: user.ketStatus ?? "Pensiun",
+        ttl: user.ttl ?? "",
+        noHp: user.noHp ?? "",
         address: user.address ?? "",
         education: user.education ?? "",
         position: user.position ?? "",
@@ -140,6 +150,9 @@ export function UserDialog({
         isActive: true,
         divisionId: undefined,
 
+        ketStatus: "Pensiun",
+        ttl: "",
+        noHp: "",
         address: "",
         education: "",
         position: "",
@@ -192,14 +205,38 @@ export function UserDialog({
     }
   };
 
+  React.useEffect(() => {
+    if (open && user) {
+      setStatus(user.isActive);
+      form.setValue("isActive", user.isActive);
+    }
+  }, [open, user]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (isOpen && user) {
+          setStatus(user.isActive);
+        }
+
+        if (!isOpen) {
+          setStatus(true);
+          form.reset();
+        }
+
+        onOpenChange(isOpen);
+      }}
+    >
+      <DialogContent className="sm:max-w-[425px] h-[90%]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit User" : "Tambah User"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 overflow-y-scroll"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -235,6 +272,32 @@ export function UserDialog({
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input placeholder="email@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="ttl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tempat Tanggal Lahir</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Tempat Tanggal Lahir" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="noHp"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor HP</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nomor HP" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -391,11 +454,12 @@ export function UserDialog({
                   <FormItem>
                     <FormLabel>Status</FormLabel>
                     <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === "true")
-                      }
-                      defaultValue={field.value ? "true" : "false"}
-                      value={field.value ? "true" : "false"}
+                      onValueChange={(value) => {
+                        const boolValue = value === "true";
+                        field.onChange(boolValue);
+                        setStatus(boolValue);
+                      }}
+                      value={status ? "true" : "false"}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -412,6 +476,31 @@ export function UserDialog({
                 )}
               />
             )}
+
+            {status === false && (
+              <FormField
+                control={form.control}
+                name="ketStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Keterangan Nonaktif</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih Keterangan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Pensiun">Pensiun</SelectItem>
+                        <SelectItem value="Resign">Resign</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="password"

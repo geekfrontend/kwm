@@ -197,7 +197,7 @@ export default function AttendanceDetailPage() {
                             !att.mealAllowance.isEligible ||
                             att.mealAllowance.isPaid ||
                             !att.checkOutAt ||
-                            moment(att.checkOutAt).hour() < 16
+                            moment(att.checkOutAt).hour() < 18
                           }
                           onClick={async () => {
                             try {

@@ -41,19 +41,32 @@ export function UserDetailDialog({
           <DetailItem label="BPJS TK" value={user.bpjsTk} />
           <DetailItem label="BPJS Kesehatan" value={user.bpjsKes} />
           <DetailItem label="Divisi" value={user.division?.name || "-"} />
-          <DetailItem label="Tanggal Mulai Kerja" value={formatDate(user.startWorkDate)} />
+          <DetailItem
+            label="Tanggal Mulai Kerja"
+            value={formatDate(user.startWorkDate)}
+          />
 
+          {/* ROLE */}
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Role</span>
             <span className="font-medium">{user.role}</span>
           </div>
 
+          {/* STATUS */}
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Status</span>
             <Badge variant={user.isActive ? "default" : "destructive"}>
               {user.isActive ? "Aktif" : "Nonaktif"}
             </Badge>
           </div>
+
+          {/* KETERANGAN STATUS (HANYA JIKA NONAKTIF) */}
+          {!user.isActive && (
+            <DetailItem
+              label="Keterangan Status"
+              value={user.ketStatus || "-"}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -26,6 +26,12 @@ import moment from "moment";
 import "moment/locale/id";
 import { IconPdf } from "@tabler/icons-react";
 import { useReactToPrint } from "react-to-print";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Attendance {
   id: string;
@@ -45,6 +51,9 @@ export default function AttendanceDetailPage() {
   const [attendance, setAttendance] = React.useState<Attendance[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [openDetail, setOpenDetail] = React.useState(false);
+  const [selectedAttendance, setSelectedAttendance] =
+    React.useState<Attendance | null>(null);
 
   const printRef = React.useRef<HTMLDivElement>(null);
   console.log(attendance);
@@ -71,6 +80,8 @@ export default function AttendanceDetailPage() {
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
+
+  console.log(attendance);
 
   const isAllChecked =
     attendance.length > 0 &&
@@ -213,6 +224,14 @@ export default function AttendanceDetailPage() {
                         >
                           Bayar
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedAttendance(att);
+                            setOpenDetail(true);
+                          }}
+                        >
+                          Detail
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -316,8 +335,93 @@ export default function AttendanceDetailPage() {
                 ))}
             </tbody>
           </table>
+          <Dialog open={openDetail} onOpenChange={setOpenDetail}>
+            <DialogContent className="sm:max-w-[450px]">
+              <DialogHeader>
+                <DialogTitle>Detail Presensi</DialogTitle>
+              </DialogHeader>
+
+              {selectedAttendance && (
+                <div className="space-y-3 text-sm">
+                  <DetailRow
+                    label="Nama"
+                    value={selectedAttendance.user?.name}
+                  />
+                  <DetailRow
+                    label="Email"
+                    value={selectedAttendance.user?.email}
+                  />
+                  <DetailRow
+                    label="Tanggal"
+                    value={moment(selectedAttendance.attendanceDate).format(
+                      "dddd, DD MMMM YYYY"
+                    )}
+                  />
+                  <DetailRow
+                    label="Jam Masuk"
+                    value={
+                      selectedAttendance.checkInAt
+                        ? moment(selectedAttendance.checkInAt).format("HH:mm")
+                        : "-"
+                    }
+                  />
+                  <DetailRow
+                    label="Jam Keluar"
+                    value={
+                      selectedAttendance.checkOutAt
+                        ? moment(selectedAttendance.checkOutAt).format("HH:mm")
+                        : "-"
+                    }
+                  />
+                  <DetailRow
+                    label="Status Kehadiran"
+                    value={
+                      selectedAttendance.status === "ONTIME"
+                        ? "Tepat Waktu"
+                        : "Terlambat"
+                    }
+                  />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Status Tunjangan
+                    </span>
+                    {!selectedAttendance.mealAllowance ||
+                    selectedAttendance.mealAllowance.isEligible === false ? (
+                      <span className="text-slate-400">Tidak Berlaku</span>
+                    ) : selectedAttendance.mealAllowance.isPaid ? (
+                      <Badge className="bg-emerald-100 text-emerald-700">
+                        Dibayar
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-rose-100 text-rose-700">
+                        Belum Dibayar
+                      </Badge>
+                    )}
+                  </div>
+
+                  {selectedAttendance.mealAllowance?.amount !== undefined && (
+                    <DetailRow
+                      label="Nominal Tunjangan"
+                      value={`Rp ${selectedAttendance.mealAllowance.amount.toLocaleString(
+                        "id-ID"
+                      )}`}
+                    />
+                  )}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
   );
+  function DetailRow({ label, value }: { label: string; value?: string }) {
+    return (
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-medium">{value || "-"}</span>
+      </div>
+    );
+  }
 }
